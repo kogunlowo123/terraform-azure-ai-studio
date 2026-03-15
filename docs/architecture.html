@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>terraform-azure-ai-studio | Architecture</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b0c0b;color:#f5f2eb;font-family:'SF Mono','Cascadia Code','Fira Code',monospace;line-height:1.7;padding:0}
+a{color:#c8420a;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:2rem}
+header{background:linear-gradient(135deg,#0b0c0b 0%,#1a1b1a 100%);border-bottom:2px solid #c8420a;padding:2rem 0}
+header .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+h1{font-size:1.8rem;color:#f5f2eb}h2{font-size:1.4rem;color:#c8420a;margin:2rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid #2a2b2a}h3{font-size:1.1rem;color:#f5f2eb;margin:1.5rem 0 0.75rem}
+.badge{background:#0078D4;color:#fff;padding:0.3rem 1rem;border-radius:4px;font-size:0.85rem;font-weight:600;letter-spacing:0.5px}.badge-type{background:#c8420a}
+.summary{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.5rem;margin:1.5rem 0;font-size:0.95rem;line-height:1.8}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.card{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.25rem;transition:border-color 0.2s}.card:hover{border-color:#c8420a}
+.card-title{font-size:0.95rem;color:#c8420a;margin-bottom:0.5rem}.card-value{font-size:1.3rem;color:#f5f2eb;font-weight:700}.card-desc{font-size:0.8rem;color:#888;margin-top:0.25rem}
+.arch-diagram{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:2rem;margin:1.5rem 0;overflow-x:auto}
+.flow{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.flow-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;align-items:center}
+.flow-box{background:#0b0c0b;border:2px solid #c8420a;border-radius:8px;padding:0.75rem 1.25rem;text-align:center;font-size:0.85rem;min-width:140px}
+.flow-box.primary{border-color:#0078D4;background:#0a1628}.flow-box.secondary{border-color:#3F8624;background:#0a1a0a}.flow-box.accent{border-color:#c8420a;background:#1a0f0a}.flow-box.purple{border-color:#8C4FFF;background:#140a28}.flow-box.warning{border-color:#FF9900;background:#1a1400}
+.flow-arrow{color:#555;font-size:1.5rem}.flow-label{font-size:0.7rem;color:#888;margin-top:0.2rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.85rem}
+th{background:#1a1b1a;color:#c8420a;text-align:left;padding:0.75rem;border:1px solid #2a2b2a;font-weight:600}
+td{padding:0.75rem;border:1px solid #2a2b2a;color:#f5f2eb}tr:nth-child(even){background:#111211}tr:hover{background:#1a1b1a}
+.check{color:#3F8624}.x{color:#DD344C}
+.checklist{list-style:none;padding:0}.checklist li{padding:0.4rem 0;padding-left:1.5rem;position:relative;font-size:0.9rem}.checklist li::before{content:"[  ]";position:absolute;left:0;color:#c8420a;font-size:0.85rem}
+code{background:#1a1b1a;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#c8420a}
+pre{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.25rem;overflow-x:auto;font-size:0.85rem;margin:1rem 0}
+.data-flow-step{display:flex;align-items:flex-start;gap:1rem;margin:0.75rem 0}.step-num{background:#c8420a;color:#fff;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}.step-text{font-size:0.9rem}
+footer{background:#1a1b1a;border-top:2px solid #c8420a;padding:2rem 0;margin-top:3rem;text-align:center;font-size:0.8rem;color:#555}
+.section{margin-bottom:2rem}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<div>
+<h1>terraform-azure-ai-studio</h1>
+<p style="color:#888;margin-top:0.3rem;font-size:0.9rem">Azure AI Studio Hub & Projects Module</p>
+</div>
+<div>
+<span class="badge">Azure</span>
+<span class="badge badge-type">AI Studio</span>
+</div>
+</div>
+</header>
+
+<div class="container">
+
+<section class="section">
+<h2>Executive Summary</h2>
+<div class="summary">
+Production-ready Terraform module for deploying Azure AI Studio with hub workspaces, child projects, compute instances, model deployments (via Cognitive Services), workspace connections, and private endpoints. The hub workspace acts as the central governance layer backed by Storage Account, Key Vault, Application Insights, and Container Registry. Projects inherit hub resources and provide isolated workspaces for teams. Supports customer-managed key encryption, multiple identity types, and full network isolation.
+</div>
+</section>
+
+<section class="section">
+<h2>Overview Cards</h2>
+<div class="cards">
+<div class="card"><div class="card-title">Resources</div><div class="card-value">5 types</div><div class="card-desc">Hub, Projects, Compute, Models, PE</div></div>
+<div class="card"><div class="card-title">Variables</div><div class="card-value">18</div><div class="card-desc">4 required, 14 optional</div></div>
+<div class="card"><div class="card-title">Outputs</div><div class="card-value">11</div><div class="card-desc">IDs, principals, discovery URL</div></div>
+<div class="card"><div class="card-title">Provider</div><div class="card-value">azurerm</div><div class="card-desc">>= 3.80.0</div></div>
+<div class="card"><div class="card-title">Hub SKU</div><div class="card-value">Basic</div><div class="card-desc">Basic / Standard / Premium</div></div>
+<div class="card"><div class="card-title">Identity</div><div class="card-value">Flexible</div><div class="card-desc">System / User / Both</div></div>
+</div>
+</section>
+
+<section class="section">
+<h2>Architecture Diagram</h2>
+<div class="arch-diagram">
+<div class="flow">
+<div class="flow-row">
+<div class="flow-box primary">AI Hub Workspace<div class="flow-label">Central governance layer</div></div>
+<div class="flow-box primary">Managed Identity<div class="flow-label">SystemAssigned / UserAssigned</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box purple">Project: NLP<div class="flow-label">Child workspace</div></div>
+<div class="flow-box purple">Project: Vision<div class="flow-label">Child workspace</div></div>
+<div class="flow-box purple">Project: Agents<div class="flow-label">Child workspace</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box warning">Compute Instance 1<div class="flow-label">Dev VM</div></div>
+<div class="flow-box warning">Compute Instance 2<div class="flow-label">Dev VM</div></div>
+<div class="flow-box secondary">GPT-4o Deployment<div class="flow-label">Cognitive Services</div></div>
+<div class="flow-box secondary">Embeddings Model<div class="flow-label">Cognitive Services</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box primary">Storage Account<div class="flow-label">Backing store</div></div>
+<div class="flow-box primary">Key Vault<div class="flow-label">Secrets & keys</div></div>
+<div class="flow-box primary">App Insights<div class="flow-label">Monitoring</div></div>
+<div class="flow-box primary">Container Registry<div class="flow-label">Model images</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box accent">Private Endpoints<div class="flow-label">Network isolation</div></div>
+<div class="flow-box accent">Private DNS Zones<div class="flow-label">Name resolution</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<h2>Component Breakdown</h2>
+<table>
+<tr><th>Component</th><th>Resource Type</th><th>Purpose</th><th>Configuration</th></tr>
+<tr><td>AI Hub Workspace</td><td><code>azurerm_machine_learning_workspace</code> (kind=Hub)</td><td>Central hub for AI Studio</td><td>Backed by Storage, KV, AppInsights, ACR</td></tr>
+<tr><td>Projects</td><td><code>azurerm_machine_learning_workspace</code> (kind=Project)</td><td>Team-isolated workspaces</td><td>for_each map, inherits hub resources</td></tr>
+<tr><td>Compute Instances</td><td><code>azurerm_machine_learning_compute_instance</code></td><td>Development VMs for data scientists</td><td>Configurable VM size, user assignment, subnet</td></tr>
+<tr><td>Model Deployments</td><td><code>azurerm_cognitive_deployment</code></td><td>Deploy OpenAI/Cognitive models</td><td>for_each map, scale type, RAI policy</td></tr>
+<tr><td>Connections</td><td><code>azurerm_machine_learning_workspace_network_outbound_rule_fqdn</code></td><td>Connect to external services</td><td>CustomKeys category connections</td></tr>
+<tr><td>Private Endpoints</td><td><code>azurerm_private_endpoint</code></td><td>Network isolation for hub</td><td>for_each map, DNS zone groups</td></tr>
+<tr><td>Encryption</td><td>Inline block</td><td>Customer-managed key encryption</td><td>Key Vault key + identity</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Data Flow</h2>
+<div class="data-flow-step"><div class="step-num">1</div><div class="step-text">Data scientists access AI Studio portal via the Hub workspace.</div></div>
+<div class="data-flow-step"><div class="step-num">2</div><div class="step-text">Projects provide isolated workspaces for different teams/use cases.</div></div>
+<div class="data-flow-step"><div class="step-num">3</div><div class="step-text">Compute instances provide managed VMs for model development.</div></div>
+<div class="data-flow-step"><div class="step-num">4</div><div class="step-text">Model deployments expose LLMs via Cognitive Services for inference.</div></div>
+<div class="data-flow-step"><div class="step-num">5</div><div class="step-text">Backing services (Storage, Key Vault, ACR) store data, secrets, and container images.</div></div>
+<div class="data-flow-step"><div class="step-num">6</div><div class="step-text">Private endpoints ensure all traffic flows within the VNet.</div></div>
+</section>
+
+<section class="section">
+<h2>Security Controls</h2>
+<table>
+<tr><th>Control</th><th>Implementation</th><th>Default</th></tr>
+<tr><td>Managed Identity</td><td>SystemAssigned, UserAssigned, or both</td><td>SystemAssigned</td></tr>
+<tr><td>CMK Encryption</td><td>Customer-managed keys via Key Vault</td><td>Optional</td></tr>
+<tr><td>Network Isolation</td><td>Private endpoints with DNS zone groups</td><td>Public access enabled</td></tr>
+<tr><td>Project Isolation</td><td>Separate workspaces per team with own identity</td><td>SystemAssigned per project</td></tr>
+<tr><td>Compute Auth</td><td>Personal authorization type</td><td>Local auth enabled</td></tr>
+<tr><td>RAI Policies</td><td>Responsible AI policies on model deployments</td><td>Optional</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Industry Adaptation</h2>
+<table>
+<tr><th>Capability</th><th>Healthcare</th><th>Finance</th><th>Government</th><th>Retail</th><th>SaaS</th></tr>
+<tr><td>Private Endpoints</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td>Optional</td><td>Optional</td></tr>
+<tr><td>CMK Encryption</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td>Optional</td><td>Optional</td></tr>
+<tr><td>Project Isolation</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+<tr><td>RAI Policy</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+<tr><td>Compute Subnet</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td>Optional</td><td>Optional</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Production Readiness Checklist</h2>
+<ul class="checklist">
+<li>Configure private endpoints for hub workspace</li>
+<li>Use UserAssigned identity for cross-service access</li>
+<li>Enable CMK encryption for sensitive workloads</li>
+<li>Disable public network access in production</li>
+<li>Assign compute instances to specific users</li>
+<li>Set RAI policies on model deployments</li>
+<li>Connect Application Insights for monitoring</li>
+<li>Configure Container Registry for custom model images</li>
+<li>Set appropriate SKU (Standard/Premium for production)</li>
+<li>Create separate projects per team for isolation</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Variable</th><th>Type</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>hub_workspace_name</code></td><td>string</td><td>required</td><td>Name of the AI Hub workspace</td></tr>
+<tr><td><code>storage_account_id</code></td><td>string</td><td>required</td><td>Storage Account resource ID</td></tr>
+<tr><td><code>key_vault_id</code></td><td>string</td><td>required</td><td>Key Vault resource ID</td></tr>
+<tr><td><code>hub_sku_name</code></td><td>string</td><td>Basic</td><td>SKU: Basic, Standard, Premium</td></tr>
+<tr><td><code>projects</code></td><td>map(object)</td><td>{}</td><td>Map of child projects</td></tr>
+<tr><td><code>compute_instances</code></td><td>map(object)</td><td>{}</td><td>Map of compute instances</td></tr>
+<tr><td><code>model_deployments</code></td><td>map(object)</td><td>{}</td><td>Map of model deployments</td></tr>
+<tr><td><code>private_endpoints</code></td><td>map(object)</td><td>{}</td><td>Map of private endpoints</td></tr>
+<tr><td><code>encryption</code></td><td>object</td><td>null</td><td>CMK encryption config</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Deployment</h2>
+<pre>
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+
+# Verify hub workspace
+az ml workspace show --name hub-prod-001 --resource-group rg-ai-studio
+</pre>
+</section>
+
+<section class="section">
+<h2>Links</h2>
+<p>
+<a href="https://learn.microsoft.com/en-us/azure/ai-studio/">Azure AI Studio Documentation</a> |
+<a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/machine_learning_workspace">Terraform ML Workspace</a> |
+<a href="../README.md">Module README</a> |
+<a href="../examples/">Examples</a>
+</p>
+</section>
+
+</div>
+
+<footer>
+<div class="container">
+<p>terraform-azure-ai-studio Architecture Document</p>
+<p>Generated on 2026-03-15 | Terraform Azure Module</p>
+</div>
+</footer>
+</body>
+</html>
