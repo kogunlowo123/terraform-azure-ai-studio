@@ -41,7 +41,7 @@ variable "hub_description" {
 }
 
 variable "hub_sku_name" {
-  description = "SKU name for the AI Hub workspace."
+  description = "SKU name for the AI Hub workspace (Basic, Standard, or Premium)."
   type        = string
   default     = "Basic"
 
@@ -52,7 +52,7 @@ variable "hub_sku_name" {
 }
 
 variable "storage_account_id" {
-  description = "Resource ID of the Storage Account to associate with the hub workspace."
+  description = "Resource ID of the Storage Account for the hub workspace."
   type        = string
 
   validation {
@@ -62,7 +62,7 @@ variable "storage_account_id" {
 }
 
 variable "key_vault_id" {
-  description = "Resource ID of the Key Vault to associate with the hub workspace."
+  description = "Resource ID of the Key Vault for the hub workspace."
   type        = string
 
   validation {
@@ -72,13 +72,13 @@ variable "key_vault_id" {
 }
 
 variable "application_insights_id" {
-  description = "Resource ID of Application Insights to associate with the hub workspace. Optional."
+  description = "Resource ID of Application Insights for the hub workspace."
   type        = string
   default     = null
 }
 
 variable "container_registry_id" {
-  description = "Resource ID of the Container Registry to associate with the hub workspace. Optional."
+  description = "Resource ID of the Container Registry for the hub workspace."
   type        = string
   default     = null
 }
@@ -101,13 +101,13 @@ variable "managed_identity_type" {
 }
 
 variable "user_assigned_identity_ids" {
-  description = "List of user-assigned managed identity IDs to assign to the hub workspace."
+  description = "List of user-assigned managed identity IDs for the hub workspace."
   type        = list(string)
   default     = []
 }
 
 variable "primary_user_assigned_identity_id" {
-  description = "Resource ID of the primary user-assigned identity. Required when identity type includes UserAssigned."
+  description = "Resource ID of the primary user-assigned identity."
   type        = string
   default     = null
 }
@@ -141,7 +141,7 @@ variable "compute_instances" {
 }
 
 variable "model_deployments" {
-  description = "Map of model deployments (via Cognitive Services account) to create."
+  description = "Map of model deployments via Cognitive Services account."
   type = map(object({
     cognitive_account_id = string
     model_name           = string
@@ -157,11 +157,11 @@ variable "model_deployments" {
 variable "connections" {
   description = "Map of AI Studio connections to external services."
   type = map(object({
-    target              = string
-    category            = string
-    auth_type           = optional(string, "AAD")
-    credentials_key     = optional(string, null)
-    metadata            = optional(map(string), {})
+    target          = string
+    category        = string
+    auth_type       = optional(string, "AAD")
+    credentials_key = optional(string, null)
+    metadata        = optional(map(string), {})
   }))
   default = {}
 
@@ -179,10 +179,10 @@ variable "connections" {
 variable "private_endpoints" {
   description = "Map of private endpoints for the hub workspace."
   type = map(object({
-    subnet_id                      = string
-    private_dns_zone_ids           = optional(list(string), [])
-    is_manual_connection           = optional(bool, false)
-    subresource_names              = optional(list(string), ["amlworkspace"])
+    subnet_id                       = string
+    private_dns_zone_ids            = optional(list(string), [])
+    is_manual_connection            = optional(bool, false)
+    subresource_names               = optional(list(string), ["amlworkspace"])
     private_service_connection_name = optional(string, null)
   }))
   default = {}
@@ -191,8 +191,8 @@ variable "private_endpoints" {
 variable "encryption" {
   description = "Customer-managed key encryption configuration."
   type = object({
-    key_vault_key_id                 = string
-    user_assigned_identity_id        = optional(string, null)
+    key_vault_key_id          = string
+    user_assigned_identity_id = optional(string, null)
   })
   default = null
 }

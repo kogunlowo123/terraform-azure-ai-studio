@@ -1,6 +1,5 @@
-###############################################################################
-# Azure AI Hub Workspace
-###############################################################################
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_machine_learning_workspace" "hub" {
   name                          = var.hub_workspace_name
   location                      = var.location
@@ -10,7 +9,7 @@ resource "azurerm_machine_learning_workspace" "hub" {
   storage_account_id            = var.storage_account_id
   container_registry_id         = var.container_registry_id
   kind                          = "Hub"
-  friendly_name                 = local.hub_display_name
+  friendly_name                 = var.hub_display_name != "" ? var.hub_display_name : var.hub_workspace_name
   description                   = var.hub_description
   sku_name                      = var.hub_sku_name
   public_network_access_enabled = var.public_network_access_enabled
@@ -18,26 +17,27 @@ resource "azurerm_machine_learning_workspace" "hub" {
   primary_user_assigned_identity = var.primary_user_assigned_identity_id
 
   identity {
-    type         = local.identity_config.type
-    identity_ids = local.identity_config.identity_ids
+    type         = var.managed_identity_type
+    identity_ids = var.managed_identity_type != "SystemAssigned" ? var.user_assigned_identity_ids : null
   }
 
   dynamic "encryption" {
     for_each = var.encryption != null ? [var.encryption] : []
     content {
-      key_vault_key_id                 = encryption.value.key_vault_key_id
-      user_assigned_identity_id        = encryption.value.user_assigned_identity_id
+      key_vault_key_id          = encryption.value.key_vault_key_id
+      user_assigned_identity_id = encryption.value.user_assigned_identity_id
     }
   }
 
-  tags = local.common_tags
+  tags = var.tags
 }
 
-###############################################################################
-# AI Studio Projects (Child Workspaces)
-###############################################################################
 resource "azurerm_machine_learning_workspace" "projects" {
-  for_each = local.projects_with_defaults
+  for_each = {
+    for k, v in var.projects : k => merge(v, {
+      display_name = v.display_name != "" ? v.display_name : k
+    })
+  }
 
   name                          = each.key
   location                      = var.location
@@ -56,14 +56,11 @@ resource "azurerm_machine_learning_workspace" "projects" {
     type = "SystemAssigned"
   }
 
-  tags = merge(local.common_tags, each.value.tags)
+  tags = merge(var.tags, each.value.tags)
 }
 
-###############################################################################
-# Compute Instances
-###############################################################################
 resource "azurerm_machine_learning_compute_instance" "this" {
-  for_each = local.compute_instances_flat
+  for_each = var.compute_instances
 
   name                          = each.key
   machine_learning_workspace_id = azurerm_machine_learning_workspace.hub.id
@@ -81,12 +78,9 @@ resource "azurerm_machine_learning_compute_instance" "this" {
     }
   }
 
-  tags = merge(local.common_tags, each.value.tags)
+  tags = merge(var.tags, each.value.tags)
 }
 
-###############################################################################
-# Model Deployments (Cognitive Services Deployment)
-###############################################################################
 resource "azurerm_cognitive_deployment" "this" {
   for_each = var.model_deployments
 
@@ -107,25 +101,23 @@ resource "azurerm_cognitive_deployment" "this" {
   rai_policy_name = each.value.rai_policy_name
 }
 
-###############################################################################
-# Workspace Connections
-###############################################################################
 resource "azurerm_machine_learning_workspace_network_outbound_rule_fqdn" "connections" {
   for_each = {
     for k, v in var.connections : k => v
     if v.category == "CustomKeys"
   }
 
-  name         = each.key
-  workspace_id = azurerm_machine_learning_workspace.hub.id
+  name             = each.key
+  workspace_id     = azurerm_machine_learning_workspace.hub.id
   destination_fqdn = each.value.target
 }
 
-###############################################################################
-# Private Endpoints
-###############################################################################
 resource "azurerm_private_endpoint" "this" {
-  for_each = local.private_endpoints_with_defaults
+  for_each = {
+    for k, v in var.private_endpoints : k => merge(v, {
+      private_service_connection_name = v.private_service_connection_name != null ? v.private_service_connection_name : "${var.hub_workspace_name}-${k}-psc"
+    })
+  }
 
   name                = "${var.hub_workspace_name}-${each.key}-pe"
   location            = var.location
@@ -147,5 +139,5 @@ resource "azurerm_private_endpoint" "this" {
     }
   }
 
-  tags = local.common_tags
+  tags = var.tags
 }
