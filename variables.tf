@@ -41,7 +41,7 @@ variable "hub_description" {
 }
 
 variable "hub_sku_name" {
-  description = "SKU name for the AI Hub workspace (Basic, Standard, or Premium)."
+  description = "Retained for backward compatibility. Ignored: azurerm_ai_foundry has no SKU argument."
   type        = string
   default     = "Basic"
 
@@ -117,7 +117,7 @@ variable "projects" {
   type = map(object({
     display_name = optional(string, "")
     description  = optional(string, "")
-    sku_name     = optional(string, "Basic")
+    sku_name     = optional(string, "Basic") # retained for compatibility; ignored (azurerm_ai_foundry_project has no SKU)
     tags         = optional(map(string), {})
   }))
   default = {}
@@ -192,6 +192,7 @@ variable "encryption" {
   description = "Customer-managed key encryption configuration."
   type = object({
     key_vault_key_id          = string
+    key_vault_id              = optional(string, null)
     user_assigned_identity_id = optional(string, null)
   })
   default = null

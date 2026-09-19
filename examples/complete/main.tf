@@ -34,10 +34,9 @@ resource "azurerm_private_dns_zone" "ml" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "ml" {
-  name                  = "ml-vnet-link"
-  resource_group_name   = azurerm_resource_group.example.name
-  private_dns_zone_name = azurerm_private_dns_zone.ml.name
-  virtual_network_id    = azurerm_virtual_network.example.id
+  name                = "ml-vnet-link"
+  private_dns_zone_id = azurerm_private_dns_zone.ml.id
+  virtual_network_id  = azurerm_virtual_network.example.id
 }
 
 resource "azurerm_storage_account" "example" {
@@ -56,6 +55,7 @@ resource "azurerm_key_vault" "example" {
   sku_name                   = "standard"
   soft_delete_retention_days = 90
   purge_protection_enabled   = true
+  rbac_authorization_enabled = true
 }
 
 resource "azurerm_application_insights" "example" {

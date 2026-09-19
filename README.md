@@ -119,13 +119,14 @@ module "ai_studio" {
 | Name | Version |
 |------|---------|
 | [terraform](https://www.terraform.io/) | >= 1.5.0 |
-| [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | >= 3.80.0 |
+| [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | >= 5.0.0, < 6.0.0 |
 
 ## Resources
 
 | Name | Type | Documentation |
 |------|------|---------------|
-| [azurerm_machine_learning_workspace](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/machine_learning_workspace) | resource | Hub & Project workspaces |
+| [azurerm_ai_foundry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ai_foundry) | resource | AI Studio hub |
+| [azurerm_ai_foundry_project](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ai_foundry_project) | resource | AI Studio projects |
 | [azurerm_machine_learning_compute_instance](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/machine_learning_compute_instance) | resource | Compute instances |
 | [azurerm_cognitive_deployment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cognitive_deployment) | resource | Model deployments |
 | [azurerm_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource | Private endpoints |
@@ -141,7 +142,7 @@ module "ai_studio" {
 | hub_workspace_name | Name of the Azure AI Hub workspace | `string` | n/a | yes |
 | hub_display_name | Display name for the AI Hub | `string` | `""` | no |
 | hub_description | Description for the AI Hub | `string` | `"Azure AI Hub Workspace"` | no |
-| hub_sku_name | SKU name for the workspace | `string` | `"Basic"` | no |
+| hub_sku_name | Deprecated, ignored (azurerm_ai_foundry has no SKU) | `string` | `"Basic"` | no |
 | storage_account_id | Resource ID of the Storage Account | `string` | n/a | yes |
 | key_vault_id | Resource ID of the Key Vault | `string` | n/a | yes |
 | application_insights_id | Resource ID of Application Insights | `string` | `null` | no |

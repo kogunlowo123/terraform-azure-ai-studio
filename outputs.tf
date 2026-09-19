@@ -1,36 +1,36 @@
 output "hub_workspace_id" {
   description = "Resource ID of the AI Hub workspace."
-  value       = azurerm_machine_learning_workspace.hub.id
+  value       = azurerm_ai_foundry.hub.id
 }
 
 output "hub_workspace_name" {
   description = "Name of the AI Hub workspace."
-  value       = azurerm_machine_learning_workspace.hub.name
+  value       = azurerm_ai_foundry.hub.name
 }
 
 output "hub_workspace_principal_id" {
   description = "Principal ID of the hub workspace managed identity."
-  value       = try(azurerm_machine_learning_workspace.hub.identity[0].principal_id, null)
+  value       = try(azurerm_ai_foundry.hub.identity[0].principal_id, null)
 }
 
 output "hub_workspace_tenant_id" {
   description = "Tenant ID of the hub workspace managed identity."
-  value       = try(azurerm_machine_learning_workspace.hub.identity[0].tenant_id, null)
+  value       = try(azurerm_ai_foundry.hub.identity[0].tenant_id, null)
 }
 
 output "hub_workspace_discovery_url" {
   description = "Discovery URL of the AI Hub workspace."
-  value       = azurerm_machine_learning_workspace.hub.discovery_url
+  value       = azurerm_ai_foundry.hub.discovery_url
 }
 
 output "project_ids" {
   description = "Map of project names to their resource IDs."
-  value       = { for k, v in azurerm_machine_learning_workspace.projects : k => v.id }
+  value       = { for k, v in azurerm_ai_foundry_project.projects : k => v.id }
 }
 
 output "project_principal_ids" {
   description = "Map of project names to their managed identity principal IDs."
-  value       = { for k, v in azurerm_machine_learning_workspace.projects : k => try(v.identity[0].principal_id, null) }
+  value       = { for k, v in azurerm_ai_foundry_project.projects : k => try(v.identity[0].principal_id, null) }
 }
 
 output "compute_instance_ids" {

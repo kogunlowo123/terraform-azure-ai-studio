@@ -21,6 +21,7 @@ resource "azurerm_key_vault" "test" {
   sku_name                   = "standard"
   purge_protection_enabled   = false
   soft_delete_retention_days = 7
+  rbac_authorization_enabled = true
 }
 
 resource "azurerm_application_insights" "test" {

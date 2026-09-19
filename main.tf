@@ -1,19 +1,18 @@
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_machine_learning_workspace" "hub" {
-  name                          = var.hub_workspace_name
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  application_insights_id       = var.application_insights_id
-  key_vault_id                  = var.key_vault_id
-  storage_account_id            = var.storage_account_id
-  container_registry_id         = var.container_registry_id
-  kind                          = "Hub"
-  friendly_name                 = var.hub_display_name != "" ? var.hub_display_name : var.hub_workspace_name
-  description                   = var.hub_description
-  sku_name                      = var.hub_sku_name
-  public_network_access_enabled = var.public_network_access_enabled
-
+# AI Foundry (AI Studio) hub. azurerm_machine_learning_workspace no longer models
+# hubs/projects; the dedicated azurerm_ai_foundry* resources do.
+resource "azurerm_ai_foundry" "hub" {
+  name                           = var.hub_workspace_name
+  location                       = var.location
+  resource_group_name            = var.resource_group_name
+  application_insights_id        = var.application_insights_id
+  key_vault_id                   = var.key_vault_id
+  storage_account_id             = var.storage_account_id
+  container_registry_id          = var.container_registry_id
+  friendly_name                  = var.hub_display_name != "" ? var.hub_display_name : var.hub_workspace_name
+  description                    = var.hub_description
+  public_network_access          = var.public_network_access_enabled ? "Enabled" : "Disabled"
   primary_user_assigned_identity = var.primary_user_assigned_identity_id
 
   identity {
@@ -24,7 +23,8 @@ resource "azurerm_machine_learning_workspace" "hub" {
   dynamic "encryption" {
     for_each = var.encryption != null ? [var.encryption] : []
     content {
-      key_vault_key_id          = encryption.value.key_vault_key_id
+      key_id                    = encryption.value.key_vault_key_id
+      key_vault_id              = coalesce(encryption.value.key_vault_id, var.key_vault_id)
       user_assigned_identity_id = encryption.value.user_assigned_identity_id
     }
   }
@@ -32,25 +32,18 @@ resource "azurerm_machine_learning_workspace" "hub" {
   tags = var.tags
 }
 
-resource "azurerm_machine_learning_workspace" "projects" {
+resource "azurerm_ai_foundry_project" "projects" {
   for_each = {
     for k, v in var.projects : k => merge(v, {
       display_name = v.display_name != "" ? v.display_name : k
     })
   }
 
-  name                          = each.key
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  kind                          = "Project"
-  friendly_name                 = each.value.display_name
-  description                   = each.value.description
-  sku_name                      = each.value.sku_name
-  storage_account_id            = var.storage_account_id
-  key_vault_id                  = var.key_vault_id
-  public_network_access_enabled = var.public_network_access_enabled
-
-  workspace_hub_id = azurerm_machine_learning_workspace.hub.id
+  name               = each.key
+  location           = var.location
+  ai_services_hub_id = azurerm_ai_foundry.hub.id
+  friendly_name      = each.value.display_name
+  description        = each.value.description
 
   identity {
     type = "SystemAssigned"
@@ -63,7 +56,7 @@ resource "azurerm_machine_learning_compute_instance" "this" {
   for_each = var.compute_instances
 
   name                          = each.key
-  machine_learning_workspace_id = azurerm_machine_learning_workspace.hub.id
+  machine_learning_workspace_id = azurerm_ai_foundry.hub.id
   virtual_machine_size          = each.value.vm_size
   description                   = each.value.description
   authorization_type            = each.value.authorization_type
@@ -108,7 +101,7 @@ resource "azurerm_machine_learning_workspace_network_outbound_rule_fqdn" "connec
   }
 
   name             = each.key
-  workspace_id     = azurerm_machine_learning_workspace.hub.id
+  workspace_id     = azurerm_ai_foundry.hub.id
   destination_fqdn = each.value.target
 }
 
@@ -126,7 +119,7 @@ resource "azurerm_private_endpoint" "this" {
 
   private_service_connection {
     name                           = each.value.private_service_connection_name
-    private_connection_resource_id = azurerm_machine_learning_workspace.hub.id
+    private_connection_resource_id = azurerm_ai_foundry.hub.id
     is_manual_connection           = each.value.is_manual_connection
     subresource_names              = each.value.subresource_names
   }
