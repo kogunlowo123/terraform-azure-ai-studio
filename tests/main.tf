@@ -36,10 +36,10 @@ module "test" {
   resource_group_name = azurerm_resource_group.test.name
   location            = azurerm_resource_group.test.location
 
-  hub_workspace_name  = "hub-ai-studio-test"
-  hub_display_name    = "AI Studio Test Hub"
-  hub_description     = "Test AI Hub workspace for validation"
-  hub_sku_name        = "Basic"
+  hub_workspace_name = "hub-ai-studio-test"
+  hub_display_name   = "AI Studio Test Hub"
+  hub_description    = "Test AI Hub workspace for validation"
+  hub_sku_name       = "Basic"
 
   storage_account_id      = azurerm_storage_account.test.id
   key_vault_id            = azurerm_key_vault.test.id

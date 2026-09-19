@@ -50,14 +50,14 @@ data "azurerm_client_config" "current" {}
 module "ai_studio" {
   source = "../../"
 
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
-  hub_workspace_name  = "hub-advanced-001"
-  hub_display_name    = "AI Hub Advanced"
-  hub_description     = "Advanced AI Hub with projects and model deployments"
-  hub_sku_name        = "Standard"
-  storage_account_id  = azurerm_storage_account.example.id
-  key_vault_id        = azurerm_key_vault.example.id
+  resource_group_name     = azurerm_resource_group.example.name
+  location                = azurerm_resource_group.example.location
+  hub_workspace_name      = "hub-advanced-001"
+  hub_display_name        = "AI Hub Advanced"
+  hub_description         = "Advanced AI Hub with projects and model deployments"
+  hub_sku_name            = "Standard"
+  storage_account_id      = azurerm_storage_account.example.id
+  key_vault_id            = azurerm_key_vault.example.id
   application_insights_id = azurerm_application_insights.example.id
   container_registry_id   = azurerm_container_registry.example.id
 

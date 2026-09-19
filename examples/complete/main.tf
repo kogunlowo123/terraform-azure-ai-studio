@@ -99,14 +99,14 @@ data "azurerm_client_config" "current" {}
 module "ai_studio" {
   source = "../../"
 
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
-  hub_workspace_name  = "hub-complete-001"
-  hub_display_name    = "AI Hub Complete"
-  hub_description     = "Full-featured AI Hub with all integrations"
-  hub_sku_name        = "Standard"
-  storage_account_id  = azurerm_storage_account.example.id
-  key_vault_id        = azurerm_key_vault.example.id
+  resource_group_name     = azurerm_resource_group.example.name
+  location                = azurerm_resource_group.example.location
+  hub_workspace_name      = "hub-complete-001"
+  hub_display_name        = "AI Hub Complete"
+  hub_description         = "Full-featured AI Hub with all integrations"
+  hub_sku_name            = "Standard"
+  storage_account_id      = azurerm_storage_account.example.id
+  key_vault_id            = azurerm_key_vault.example.id
   application_insights_id = azurerm_application_insights.example.id
   container_registry_id   = azurerm_container_registry.example.id
 
@@ -136,16 +136,16 @@ module "ai_studio" {
 
   compute_instances = {
     "ci-dev-01" = {
-      vm_size              = "Standard_DS3_v2"
-      description          = "Development compute"
-      authorization_type   = "personal"
-      subnet_resource_id   = azurerm_subnet.compute.id
+      vm_size            = "Standard_DS3_v2"
+      description        = "Development compute"
+      authorization_type = "personal"
+      subnet_resource_id = azurerm_subnet.compute.id
     }
     "ci-train-01" = {
-      vm_size              = "Standard_NC6s_v3"
-      description          = "Training compute with GPU"
-      authorization_type   = "personal"
-      subnet_resource_id   = azurerm_subnet.compute.id
+      vm_size            = "Standard_NC6s_v3"
+      description        = "Training compute with GPU"
+      authorization_type = "personal"
+      subnet_resource_id = azurerm_subnet.compute.id
     }
   }
 
